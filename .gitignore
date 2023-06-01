@@ -1,0 +1,10 @@
+*.aux
+*.fdb_*
+*.fls
+*.log
+*.out
+*.toc
+*.xdv
+build/
+
+*.pdf

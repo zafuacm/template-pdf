@@ -1,0 +1,103 @@
+name: github pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch to deploy
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Combined
+        run: |
+          mkdir build
+          cat src/main-bookstyle-horizontal.md    src/main.md  > build/bookstyle-horizontal.md
+          cat src/main-articlestyle-horizontal.md src/main.md  > build/articlestyle-horizontal.md
+          cat src/main-bookstyle.md               src/main.md  > build/bookstyle.md
+          cat src/main-articlestyle.md            src/main.md  > build/articlestyle.md
+          cp  src/math.tex style/pureart.cls style/purebook.cls build/
+
+      - uses: docker://pandoc/core:latest
+        with:
+          args: >-  # allows you to break string into multiple lines
+            build/bookstyle-horizontal.md
+            --template="print-template/pureart.latex"
+            --listings
+            --top-level-division=chapter
+            -o build/bookstyle-horizontal.tex
+      
+      - uses: docker://pandoc/core:latest
+        with:
+          args: >-  # allows you to break string into multiple lines
+            build/bookstyle.md
+            --template="print-template/pureart.latex"
+            --listings
+            --top-level-division=chapter
+            -o build/bookstyle.tex
+
+
+      - uses: docker://pandoc/core:latest
+        with:
+          args: >-  # allows you to break string into multiple lines
+            build/articlestyle-horizontal.md
+            --template="print-template/pureart.latex"
+            --listings
+            -o build/articlestyle-horizontal.tex
+          
+      - uses: docker://pandoc/core:latest
+        with:
+          args: >-  # allows you to break string into multiple lines
+            build/articlestyle.md
+            --template="print-template/pureart.latex"
+            --listings
+            -o build/articlestyle.tex
+
+      # https://github.com/OI-wiki/OI-Wiki-export/blob/master/.github/workflows/auto-release.yml
+      - uses: xu-cheng/latex-action@v2
+        with:
+          root_file: |
+            build/bookstyle-horizontal.tex
+            build/articlestyle-horizontal.tex
+            build/bookstyle.tex
+            build/articlestyle.tex
+            build/math.tex
+          latexmk_use_xelatex: true
+          work_in_root_file_dir: true
+          pre_compile: |
+            wget -q -O notosans.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSans-hinted.zip"
+            wget -q -O notoserif.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSerif-hinted.zip"
+            wget -q -O notoserifcjk.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSerifCJKsc-hinted.zip"
+            wget -q -O notosanscjk.zip "https://noto-website-2.storage.googleapis.com/pkgs/NotoSansCJKsc-hinted.zip"
+            wget -q -O lxgw-wenkai.zip "https://github.com/lxgw/LxgwWenKai/releases/download/v1.250/lxgw-wenkai-v1.250.zip"
+            wget -q -O jetbrains-mono.zip "https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip"
+            wget -q "http://mirrors.ctan.org/fonts/cm-unicode.zip"
+            unzip -q notosans.zip -d notosans
+            unzip -q notoserif.zip -d notoserif
+            unzip -q notosanscjk.zip -d notosanscjk
+            unzip -q notoserifcjk.zip -d notoserifcjk
+            unzip -q lxgw-wenkai.zip -d lxgw-wenkai
+            unzip -q jetbrains-mono.zip -d jetbrains-mono
+            unzip ./cm-unicode.zip
+            cp -r notosans notoserif notosanscjk notoserifcjk lxgw-wenkai jetbrains-mono/fonts/ttf/* cm-unicode/fonts/otf/* /usr/share/fonts
+            fc-cache
+
+      - name: Deploy PDF Docs
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            build/bookstyle-horizontal.pdf
+            build/articlestyle-horizontal.pdf
+            build/bookstyle.pdf
+            build/articlestyle.pdf
+            build/math.pdf
