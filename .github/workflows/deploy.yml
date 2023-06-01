@@ -28,7 +28,7 @@ jobs:
         with:
           args: >-  # allows you to break string into multiple lines
             build/bookstyle-horizontal.md
-            --template="print-template/pureart.latex"
+            --template="style/pureart.latex"
             --listings
             --top-level-division=chapter
             -o build/bookstyle-horizontal.tex
@@ -37,7 +37,7 @@ jobs:
         with:
           args: >-  # allows you to break string into multiple lines
             build/bookstyle.md
-            --template="print-template/pureart.latex"
+            --template="style/pureart.latex"
             --listings
             --top-level-division=chapter
             -o build/bookstyle.tex
@@ -47,7 +47,7 @@ jobs:
         with:
           args: >-  # allows you to break string into multiple lines
             build/articlestyle-horizontal.md
-            --template="print-template/pureart.latex"
+            --template="style/pureart.latex"
             --listings
             -o build/articlestyle-horizontal.tex
           
@@ -55,7 +55,7 @@ jobs:
         with:
           args: >-  # allows you to break string into multiple lines
             build/articlestyle.md
-            --template="print-template/pureart.latex"
+            --template="style/pureart.latex"
             --listings
             -o build/articlestyle.tex
 

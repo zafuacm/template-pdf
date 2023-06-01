@@ -23,3 +23,8 @@ $ pandoc build/bookstyle-horizontal.md --template="style/pureart.latex" --listin
 $ # 如是 Article 样式，不使用 top-level-division
 $ pandoc build/articlestyle-horizontal.md --template="style/pureart.latex" --listings -o build/articlestyle-horizontal.tex 
 ```
+
+## 备注
+
+- 示例文件来自 [rogeryoungh](https://github.com/rogeryoungh/code-of-acm)，队名 pop rbp。
+- 感谢 [ECNU F0RE1GNERS](https://github.com/XCPCIO/template-Markdown-ECNU-F0RE1GNERS) 提供的想法。
